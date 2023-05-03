@@ -33,6 +33,12 @@ export async function registerValidation(values) {
 
   return errors;
 }
+/** validate profile form */
+export async function profileValidation(values) {
+  const errors = emailVerify({}, values);
+
+  return errors;
+}
 
 /** ************************************************* */
 

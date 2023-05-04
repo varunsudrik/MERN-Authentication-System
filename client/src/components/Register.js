@@ -47,7 +47,7 @@ export default function Register() {
   const formik = useFormik({
     initialValues: {
       email: "test123@gmail.com",
-      username: "test123",
+      Username: "test123",
       Password: "Admin@12345",
     },
     validate: registerValidation,
@@ -118,7 +118,7 @@ export default function Register() {
               type="text"
               // later change type to password
               autoFocus
-              {...formik.getFieldProps("username")}
+              {...formik.getFieldProps("Username")}
               required
             />
             <TextField

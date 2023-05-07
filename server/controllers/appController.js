@@ -2,6 +2,7 @@ import User from "../Models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 const JWT_KEY = "thisismyseckeyy";
+import otpGenerator from "otp-generator";
 
 // middleware verify username
 
@@ -114,22 +115,6 @@ export async function login(req, res) {
   }
 }
 
-// export const getUser = async (req, res) => {
-//   const { Username } = req.params;
-//   try {
-//     if (!Username) return res.status(501).send({ Error: "Invalid username" });
-
-//     User.findOne({ Username }, (err, user) => {
-//       if (err) return res.status(500).send({ err });
-//       if (!user) return res.status(404).send({ Error: "User not found" });
-
-//       return res.status(201).send("yo");
-//     });
-//   } catch (err) {
-//     return res.status(404).send({ Error: "Couldnt find user" });
-//   }
-// };
-
 export async function getUser(req, res) {
   const { Username } = req.params;
 
@@ -144,11 +129,6 @@ export async function getUser(req, res) {
       /** remove password from user */
       // mongoose return unnecessary data with object so convert it into json
 
-      // const { Password, ...rest } = Object.assign({}, user.toJSON());
-
-      // return res.status(201).send(rest);
-      // const { Password, ...rest } = Object.assign({}, user.toJSON());
-
       const { Password, ...rest } = user.toJSON();
 
       return res.status(201).send(rest);
@@ -158,18 +138,88 @@ export async function getUser(req, res) {
   }
 }
 
-export const updateUser = async (req, res) => {
-  res.json("getUser route");
-};
+export async function updateUser(req, res) {
+  try {
+    // to get url query data
+    const { userId } = req.query;
+
+    if (userId) {
+      const body = req.body;
+
+      // update the data
+      User.updateOne({ _id: userId }, body, function (err, data) {
+        if (err) throw err;
+
+        return res.status(201).send({ msg: "Record Updated" });
+      });
+    } else {
+      return res.status(402).send({ error: "User Not Found" });
+    }
+  } catch (error) {
+    return res.status(403).send({ error: error.message });
+  }
+}
+
 export const generateOTP = async (req, res) => {
-  res.json("getUser route");
+  req.app.locals.OTP = await otpGenerator.generate(6, {
+    lowerCaseAlphabets: false,
+    upperCaseAlphabets: false,
+    specialChars: false,
+  });
+  res.status(201).send({ code: req.app.locals.OTP });
 };
+
 export const verifyOTP = async (req, res) => {
-  res.json("getUser route");
+  const { code } = req.query;
+  if (parseInt(req.app.locals.OTP) === parseInt(code)) {
+    req.app.locals.OTP = null; // reset otp value after checking
+    req.app.locals.resetSession = true; // start session for password reset
+    res.status(201).send({ msg: "Verification successful" });
+  }
+  res.status(401).send({ msg: "Invalid OTP " });
 };
+
 export const createResetSession = async (req, res) => {
-  res.json("getUser route");
+  if (req.app.locals.resetSession) {
+    req.app.locals.resetSession = false; // access session once only
+    return res.status(201).send({ msg: "Access Grande" });
+  }
+  return res.status(440).send({ msg: "Session Expired" });
 };
 export const resetPassword = async (req, res) => {
-  res.json("getUser route");
+  try {
+    if (!req.app.locals.resetSession)
+      return res.status(440).send({ msg: "Session Expired" });
+    const { Username, Password } = req.body;
+
+    try {
+      User.findOne({ Username })
+        .then((user) => {
+          bcrypt
+            .hash(Password, 10)
+            .then((hashedPassword) => {
+              User.updateOne(
+                {
+                  Username: user.Username,
+                },
+                { Password: hashedPassword },
+                function (err, data) {
+                  if (err) throw err;
+                  return res.status(201).send({ msg: "Record Updated" });
+                }
+              );
+            })
+            .catch((errpr) => {
+              res.status(500).send({ error: "Enable to hashed password" });
+            });
+        })
+        .catch((err) => {
+          res.status(404).send({ error: "Invalid username" });
+        });
+    } catch (err) {
+      res.status(500).send({ err });
+    }
+  } catch (error) {
+    res.status(401).send({ error });
+  }
 };

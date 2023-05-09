@@ -21,8 +21,7 @@ router.post("/register", register);
 
 router.post("/registerMail", registerMail);
 
-router.post("/authenticate", (req, res) => {
-  // authenticate user
+router.post("/authenticate", verifyUser, (req, res) => {
   res.end();
 });
 router.post("/login", verifyUser, login);
@@ -33,7 +32,7 @@ router.get("/user/:Username", getUser); // user with username
 
 router.get("/generateOTP", verifyUser, localVariables, generateOTP); // generate random otp
 
-router.get("/verifyOTP", verifyOTP); // verify random otp
+router.get("/verifyOTP", verifyUser, verifyOTP); // verify random otp
 
 router.get("/createResetSession", createResetSession); // reset variables
 

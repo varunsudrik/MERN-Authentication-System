@@ -18,10 +18,11 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useFormik } from "formik";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 // import PasswordValidate from "../helper/validate.js";
 import { registerValidation } from "../helper/validate";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../helper/helper";
 
 function Copyright(props) {
   return (
@@ -44,6 +45,7 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Register() {
+  let navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       email: "test123@gmail.com",
@@ -55,16 +57,20 @@ export default function Register() {
     validateOnChange: false,
     onSubmit: async (values) => {
       console.log(values);
+
+      let registerPromise = registerUser(values);
+      console.log(registerPromise);
+      toast.promise(registerPromise, {
+        loading: "Creating..",
+        success: "Registered Successfully ...",
+        error: "There was an error",
+      });
+      registerPromise.then(() => {
+        navigate("/");
+      });
+      //return Promise.resolve(registerPromise);
     },
   });
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     Username: data.get("Username"),
-  //   });
-  // };
-
   return (
     <ThemeProvider theme={theme}>
       <Toaster />

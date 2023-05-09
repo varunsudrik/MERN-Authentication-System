@@ -6,17 +6,46 @@ import otpGenerator from "otp-generator";
 
 // middleware verify username
 
-export const verifyUser = async (req, res, next) => {
+export async function verifyUser(req, res, next) {
   try {
     const { Username } = req.method == "GET" ? req.query : req.body;
 
+    // check the user existance
     let exist = await User.findOne({ Username });
-    if (!exist) return register.status(404).send({ Error: "User not found" });
+    if (!exist) {
+      return res.status(404).send("Can't find User!");
+    }
     next();
-  } catch (err) {
-    return res.status(400).send({ err: "Authentication error" });
+  } catch (error) {
+    return res.status(404).send({ error: "Authentication Error" });
   }
-};
+}
+
+//const { Username } = req.method == "GET" ? req.query : req.body;
+// check the user existance
+//     let exist = await User.findOne({ Username });
+//     if (exist) {
+//       res.status(200).send({ msg: "success" });
+//     }
+//     if (!exist) return res.status(404).send({ error: "Can't find User!" });
+//     next();
+//   } catch (error) {
+//     return res.status(404).send({ error: "Authentication Error" });
+//   }
+// }
+
+// export const verifyUser = async (req, res, next) => {
+//   try {
+//     const { Username } = req.method == "GET" ? req.query : req.body;
+
+//     let exist = await User.findOne({ Username });
+
+//     if (!exist) return register.status(404).send({ Error: "User not found" });
+//     next();
+//   } catch (err) {
+//     return res.status(400).send({ err: "Authentication error" });
+//   }
+// };
 
 export const register = async (req, res) => {
   try {
@@ -52,7 +81,7 @@ export const register = async (req, res) => {
                 Username,
                 Password: hashedPassword,
                 email,
-                profile: profile || "",
+                // profile: profile || "",
               });
               user
                 .save()
@@ -67,10 +96,10 @@ export const register = async (req, res) => {
         }
       })
       .catch((err) => {
-        return res.status(503).send({ error: err.message });
+        return res.status(504).send({ err });
       });
   } catch (err) {
-    return res.status(504).send(err);
+    return res.status(503).send(err);
   }
 };
 

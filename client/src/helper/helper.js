@@ -27,7 +27,7 @@ export const registerUser = async (credentials) => {
     const {
       data: { msg },
       status,
-    } = axios.post("/api/register", credentials);
+    } = await axios.post("/api/register", credentials);
     let { Username, email } = credentials;
 
     // send mail
@@ -55,6 +55,18 @@ export const login = async ({ Username, Password }) => {
     return Promise.reject({ error });
   }
 };
+
+/** login function */
+export async function verifyPassword({ Username, Password }) {
+  try {
+    if (Username) {
+      const { data } = await axios.post("/api/login", { Username, Password });
+      return Promise.resolve({ data });
+    }
+  } catch (error) {
+    return Promise.reject({ error: "Password doesn't Match...!" });
+  }
+}
 
 // update user
 export const updateuser = async (response) => {

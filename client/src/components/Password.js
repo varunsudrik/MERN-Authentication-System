@@ -17,10 +17,13 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useFormik } from "formik";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 // import PasswordValidate from "../helper/validate.js";
 import { PasswordValidate } from "../helper/validate";
-
+import useFetch from "../hooks/fetch.hook";
+import { useAuthStore } from "../store/store";
+import { verifyPassword } from "../helper/helper";
+import { useNavigate } from "react-router-dom";
 function Copyright(props) {
   return (
     <Typography
@@ -42,6 +45,9 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Password() {
+  let navigate = useNavigate();
+  const { Username } = useAuthStore((state) => state.auth);
+  const [{ isLoading, apiData, serverError }] = useFetch(`/user/${Username}`);
   const formik = useFormik({
     initialValues: {
       Password: "Admin@12345",
@@ -50,17 +56,25 @@ export default function Password() {
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {
-      console.log(values);
+      let loginPromise = verifyPassword({
+        Username,
+        Password: values.Password,
+      });
+      toast.promise(loginPromise, {
+        loading: "Checking",
+        success: "Logged in successfully",
+        error: "Password is incorrect",
+      });
+      loginPromise.then((res) => {
+        let { token } = res.data;
+        localStorage.setItem("token", token);
+        navigate("/profile");
+      });
     },
   });
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     Username: data.get("Username"),
-  //   });
-  // };
 
+  if (isLoading) return <h1>isLoading</h1>;
+  if (serverError) return <h1>{serverError.message}</h1>;
   return (
     <ThemeProvider theme={theme}>
       <Toaster />
@@ -78,7 +92,14 @@ export default function Password() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Password
+            Hello <b>{apiData?.firstName || apiData?.Username}!</b>
+          </Typography>
+          <Typography
+            component="h1"
+            variant="h6"
+            style={{ fontSize: "20px", color: "gray" }}
+          >
+            Please Enter Your Password
           </Typography>
           <Box
             component="form"

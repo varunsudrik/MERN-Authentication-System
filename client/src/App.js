@@ -1,4 +1,4 @@
-import "./App.css";
+//import "./App.css";
 import PageNotFound from "./components/PageNotFound";
 import Password from "./components/Password";
 import Register from "./components/Register";

@@ -10,7 +10,7 @@ import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 //import Link from "@mui/material/Link";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -20,6 +20,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useFormik } from "formik";
 import { Toaster } from "react-hot-toast";
 import { UsernameValidate } from "../helper/validate";
+import { useAuthStore } from "../store/store";
 
 function Copyright(props) {
   return (
@@ -42,6 +43,9 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Username() {
+  const navigate = useNavigate();
+  const setUsername = useAuthStore((state) => state.setUsername);
+
   const formik = useFormik({
     initialValues: {
       Username: "",
@@ -50,7 +54,9 @@ export default function Username() {
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {
+      setUsername(values.Username);
       console.log(values);
+      navigate("/password");
     },
   });
   // const handleSubmit = (event) => {
@@ -95,7 +101,7 @@ export default function Username() {
               name="Username"
               autoComplete="Username"
               autoFocus
-              {...formik.getFieldProps("username")}
+              {...formik.getFieldProps("Username")}
               required
             />
             {/* <TextField

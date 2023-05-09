@@ -1,5 +1,7 @@
 import axios from "axios";
 
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
+
 //authenication
 export const authenticate = async (Username) => {
   try {
@@ -89,5 +91,28 @@ export const generateOTP = async (Username) => {
     return Promise.resolve(code);
   } catch (err) {
     Promise.reject({ err });
+  }
+};
+
+export const verifyOTP = async ({ Username, code }) => {
+  try {
+    const { data, status } = await axios.get("/api/verifyOTP", {
+      params: { Username, code },
+    });
+    return { data, status };
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const resetPassword = async ({ Username, Password }) => {
+  try {
+    const { data, status } = axios.put("/api/resetPassword", {
+      Username,
+      Password,
+    });
+    return Promise.resolve({ data, status });
+  } catch (error) {
+    return Promise.reject({ error });
   }
 };

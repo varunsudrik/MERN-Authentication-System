@@ -170,7 +170,7 @@ export async function getUser(req, res) {
 export async function updateUser(req, res) {
   try {
     // to get url query data
-    const { userId } = req.query;
+    const { userId } = req.user;
 
     if (userId) {
       const body = req.body;

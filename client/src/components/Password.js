@@ -50,7 +50,7 @@ export default function Password() {
   const [{ isLoading, apiData, serverError }] = useFetch(`/user/${Username}`);
   const formik = useFormik({
     initialValues: {
-      Password: "Admin@12345",
+      Password: "dsvb@123456",
     },
     validate: PasswordValidate,
     validateOnBlur: false,

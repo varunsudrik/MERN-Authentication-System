@@ -18,10 +18,13 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useFormik } from "formik";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 // import PasswordValidate from "../helper/validate.js";
 import { profileValidation } from "../helper/validate";
 import { Link } from "react-router-dom";
+import useFetch from "../hooks/fetch.hook";
+import { useAuthStore } from "../store/store";
+import { updateuser } from "../helper/helper";
 
 function Copyright(props) {
   return (
@@ -44,28 +47,33 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Profile() {
+  const { Username } = useAuthStore((state) => state.auth);
+
+  const [{ isLoading, apiData, serverError }] = useFetch(`/user/${Username}`);
+
   const formik = useFormik({
     initialValues: {
-      FirstName: "",
-      LastName: "",
-      Mobile: "",
-      email: "",
-      Address: "",
+      FirstName: apiData?.FirstName || " ",
+      LastName: apiData?.LastName || " ",
+      Mobile: apiData?.Mobile || " ",
+      email: apiData?.email || " ",
+      Address: apiData?.Address || " ",
     },
+    enableReinitialize: true,
     validate: profileValidation,
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {
-      console.log(values);
+      let updatePromise = updateuser(values);
+      toast.promise(updatePromise, {
+        loading: "Updating...",
+        success: "Updated profile",
+        error: "Error updating profile",
+      });
     },
   });
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     Username: data.get("Username"),
-  //   });
-  // };
+  if (isLoading) return <h1>isLoading</h1>;
+  if (serverError) return <h1>{serverError.message}</h1>;
 
   return (
     <ThemeProvider theme={theme}>
@@ -173,7 +181,7 @@ export default function Profile() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Register
+              Update
             </Button>
             <br></br>
             <Grid container>

@@ -11,6 +11,7 @@ import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 //import Link from "@mui/material/Link";
+
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -21,7 +22,7 @@ import { useFormik } from "formik";
 import toast, { Toaster } from "react-hot-toast";
 // import PasswordValidate from "../helper/validate.js";
 import { profileValidation } from "../helper/validate";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useFetch from "../hooks/fetch.hook";
 import { useAuthStore } from "../store/store";
 import { updateuser } from "../helper/helper";
@@ -47,9 +48,11 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Profile() {
-  const { Username } = useAuthStore((state) => state.auth);
+  let navigate = useNavigate();
+  //const { Username } = useAuthStore((state) => state.auth);
 
-  const [{ isLoading, apiData, serverError }] = useFetch(`/user/${Username}`);
+  const [{ isLoading, apiData, serverError }] = useFetch();
+  //const [{ isLoading, apiData, serverError }] = useFetch(`/user/${Username}`);
 
   const formik = useFormik({
     initialValues: {
@@ -74,6 +77,13 @@ export default function Profile() {
   });
   if (isLoading) return <h1>isLoading</h1>;
   if (serverError) return <h1>{serverError.message}</h1>;
+
+  function userLogout() {
+    localStorage.removeItem("token");
+    toast.error("Logged out");
+
+    navigate("/");
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -185,18 +195,10 @@ export default function Profile() {
             </Button>
             <br></br>
             <Grid container>
-              {/* <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid> */}
               <Grid item>
-                {/* <Link href="http://localhost:3000/register" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link> */}
-                <Link style={{ color: "#1976d2" }} variant="body2" to="/">
-                  Already Registered? Login
-                </Link>
+                <Button variant="outlined" color="error" onClick={userLogout}>
+                  Logout
+                </Button>
               </Grid>
             </Grid>
           </Box>

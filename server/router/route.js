@@ -39,6 +39,7 @@ router.get("/createResetSession", createResetSession); // reset variables
 // put routes
 
 router.put("/updateuser", Auth, updateUser); // update user
+//router.put("/updateuser", updateUser); // update user
 
 router.put("/resetPassword", verifyUser, resetPassword); // reset password
 

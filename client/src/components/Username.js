@@ -26,8 +26,8 @@ function Copyright(props) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="https://www.linkedin.com/in/varun-sudrik/">
+        Varun Sudrik
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -43,7 +43,7 @@ export default function Username() {
 
   const formik = useFormik({
     initialValues: {
-      Username: "",
+      Username: "vds",
     },
     validate: UsernameValidate,
     validateOnBlur: false,
@@ -149,7 +149,7 @@ export default function Username() {
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        <Copyright sx={{ mt: 8, mb: 4 }} style={{ marginTop: "100%" }} />
       </Container>
     </ThemeProvider>
   );

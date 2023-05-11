@@ -17,9 +17,13 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useFormik } from "formik";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import { useState } from "react";
 // import PasswordValidate from "../helper/validate.js";
 import { PasswordValidate } from "../helper/validate";
+import { useAuthStore } from "../store/store";
+import { generateOTP, verifyOTP } from "../helper/helper";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -42,24 +46,33 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Recovery() {
-  const formik = useFormik({
-    initialValues: {
-      Password: "",
-    },
-    validate: PasswordValidate,
-    validateOnBlur: false,
-    validateOnChange: false,
-    onSubmit: async (values) => {
-      console.log(values);
-    },
-  });
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     Username: data.get("Username"),
-  //   });
-  // };
+  let navigate = useNavigate();
+  const { Username } = useAuthStore((state) => state.auth);
+  const [OTP, setOTP] = useState();
+
+  React.useEffect(() => {
+    generateOTP(Username).then((OTP) => {
+      if (OTP) return toast.success("OTP Sent");
+      return toast.error("OTP Failed");
+    });
+  }, [Username]);
+
+  // sending otp
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    let { status } = await verifyOTP({ Username, code: OTP });
+    if (status === 201) {
+      toast.success("Successfully Verified");
+      return navigate("/reset");
+    }
+    return toast.error("Invalid OTP");
+  };
+
+  // resend otp
+  const resentOTP = () => {
+    let sendPromise = generateOTP(Username);
+    toast.promise(sendPromise);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -84,13 +97,7 @@ export default function Recovery() {
             Enter OTP to request password
           </Typography>
 
-          <Box
-            component="form"
-            // onSubmit={handleSubmit}
-            onSubmit={formik.handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
+          <Box>
             <Typography className="otp-text" style={{ marginTop: "75px" }}>
               Enter 6 digit OTP sent to your email addess
             </Typography>
@@ -107,6 +114,7 @@ export default function Recovery() {
               // later change type to password
               autoFocus
               required
+              onChange={(e) => setOTP(e.target.value)}
             />
             {/* <TextField
               id="input-with-icon-textfield"

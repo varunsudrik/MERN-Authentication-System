@@ -1,14 +1,10 @@
 import * as React from "react";
 import "../styles/Username.css";
-import InputAdornment from "@mui/material/InputAdornment";
-import AccountCircle from "@mui/icons-material/AccountCircle";
 
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -47,6 +43,8 @@ const theme = createTheme();
 export default function Password() {
   let navigate = useNavigate();
   const { Username } = useAuthStore((state) => state.auth);
+  console.log(`Username is ${Username} at pass`);
+
   const [{ isLoading, apiData, serverError }] = useFetch(`/user/${Username}`);
   const formik = useFormik({
     initialValues: {

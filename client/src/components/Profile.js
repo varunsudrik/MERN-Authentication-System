@@ -1,15 +1,11 @@
 import * as React from "react";
 import "../styles/Username.css";
-import InputAdornment from "@mui/material/InputAdornment";
-import AccountCircle from "@mui/icons-material/AccountCircle";
 // import { Link } from "react-router-dom";
 
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 //import Link from "@mui/material/Link";
 
 import Grid from "@mui/material/Grid";
@@ -24,7 +20,6 @@ import toast, { Toaster } from "react-hot-toast";
 import { profileValidation } from "../helper/validate";
 import { Link, useNavigate } from "react-router-dom";
 import useFetch from "../hooks/fetch.hook";
-import { useAuthStore } from "../store/store";
 import { updateuser } from "../helper/helper";
 
 function Copyright(props) {

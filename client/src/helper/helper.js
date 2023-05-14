@@ -68,6 +68,8 @@ export const login = async ({ Username, Password }) => {
 /** login function */
 export async function verifyPassword({ Username, Password }) {
   try {
+    console.log(Username);
+
     if (Username) {
       const { data } = await axios.post("/api/login", { Username, Password });
       return Promise.resolve({ data });
@@ -90,30 +92,57 @@ export const updateuser = async (response) => {
   }
 };
 
-export const generateOTP = async (Username) => {
+export async function generateOTP(Username) {
   try {
     const {
       data: { code },
       status,
-    } = await axios.put("/api/generate", { params: { Username } });
-    // send mail
+      // } = await axios.get("/api/generateOTP", { params: { Username } });
+    } = await axios.get(`/api/generateOTP?Username=${Username}`);
+
+    // send mail with the OTP
     if (status === 201) {
       let {
         data: { email },
       } = await getUser({ Username });
-      let text = `Your Password Recovery OTP is ${code}. Verify and recover your password`;
-      await axios.post(`/api/registerMail`, {
+      let text = `Your Password Recovery OTP is ${code}. Verify and recover your password.`;
+      await axios.post("/api/registerMail", {
         Username,
         userEmail: email,
         text,
-        subject: "Password Recovery",
+        subject: "Password Recovery OTP",
       });
     }
     return Promise.resolve(code);
-  } catch (err) {
-    Promise.reject({ err });
+  } catch (error) {
+    return Promise.reject({ error });
   }
-};
+}
+
+// export const generateOTP = async (Username) => {
+//   try {
+//     const {
+//       data: { code },
+//       status,
+//     } = await axios.get("/api/generateOTP", { params: { Username } });
+//     // send mail
+//     if (status === 201) {
+//       let {
+//         data: { email },
+//       } = await getUser({ Username });
+//       let text = `Your Password Recovery OTP is ${code}. Verify and recover your password`;
+//       await axios.post(`/api/registerMail`, {
+//         Username,
+//         userEmail: email,
+//         text,
+//         subject: "Password Recovery",
+//       });
+//     }
+//     return Promise.resolve(code);
+//   } catch (err) {
+//     Promise.reject({ err });
+//   }
+// };
 
 export const verifyOTP = async ({ Username, code }) => {
   try {

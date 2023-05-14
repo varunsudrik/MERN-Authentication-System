@@ -1,14 +1,10 @@
 import * as React from "react";
 import "../styles/Username.css";
-import InputAdornment from "@mui/material/InputAdornment";
-import AccountCircle from "@mui/icons-material/AccountCircle";
 
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -16,11 +12,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useFormik } from "formik";
 import toast, { Toaster } from "react-hot-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // import PasswordValidate from "../helper/validate.js";
-import { PasswordValidate } from "../helper/validate";
 import { useAuthStore } from "../store/store";
 import { generateOTP, verifyOTP } from "../helper/helper";
 import { useNavigate } from "react-router-dom";
@@ -49,29 +43,49 @@ export default function Recovery() {
   let navigate = useNavigate();
   const { Username } = useAuthStore((state) => state.auth);
   const [OTP, setOTP] = useState();
+  console.log(`Username is ${Username} at recovery`);
 
-  React.useEffect(() => {
+  useEffect(() => {
     generateOTP(Username).then((OTP) => {
-      if (OTP) return toast.success("OTP Sent");
-      return toast.error("OTP Failed");
+      console.log(OTP);
+      if (OTP) return toast.success("OTP has been send to your email!");
+      return toast.error("Problem while generating OTP!");
     });
   }, [Username]);
 
-  // sending otp
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    let { status } = await verifyOTP({ Username, code: OTP });
-    if (status === 201) {
-      toast.success("Successfully Verified");
-      return navigate("/reset");
-    }
-    return toast.error("Invalid OTP");
-  };
+  // React.useEffect(() => {
+  //   generateOTP(Username).then((OTP) => {
+  //     console.log(OTP);
 
+  //     if (OTP) return toast.success("OTP Sent");
+  //     return toast.error("OTP Failed");
+  //   });
+  // }, [Username]);
+
+  // sending otp
+  async function onSubmit(e) {
+    e.preventDefault();
+    try {
+      let { status } = await verifyOTP({ Username, code: OTP });
+      if (status === 201) {
+        toast.success("Verify Successfully!");
+        return navigate("/reset");
+      }
+    } catch (error) {
+      return toast.error("Wront OTP! Check email again!");
+    }
+  }
   // resend otp
   const resentOTP = () => {
     let sendPromise = generateOTP(Username);
-    toast.promise(sendPromise);
+    toast.promise(sendPromise, {
+      loading: "success",
+      success: "OTP sent successfully",
+      error: "OTP sent failed",
+    });
+    sendPromise.then((OTP) => {
+      console.log(OTP);
+    });
   };
 
   return (
@@ -103,6 +117,7 @@ export default function Recovery() {
             </Typography>
 
             <TextField
+              // onSubmit={onSubmit}
               margin="normal"
               fullWidth
               id="Password"
@@ -116,6 +131,26 @@ export default function Recovery() {
               required
               onChange={(e) => setOTP(e.target.value)}
             />
+            <form className="pt-20" onSubmit={onSubmit}>
+              <div className="textbox flex flex-col items-center gap-6">
+                <div className="input text-center">
+                  <span className="py-4 text-sm text-left text-gray-500">
+                    Enter 6 digit OTP sent to your email address.
+                  </span>
+                  <input
+                    onChange={(e) => setOTP(e.target.value)}
+                    className=""
+                    type="text"
+                    placeholder="OTP"
+                  />
+                </div>
+
+                <button className="" type="submit">
+                  Recover
+                </button>
+              </div>
+            </form>
+
             {/* <TextField
               id="input-with-icon-textfield"
               label="TextField"
@@ -158,7 +193,11 @@ export default function Recovery() {
                 </Link>
               </Grid> */}
               <Grid item>
-                <Link href="http://localhost:3000/reset" variant="body2">
+                <Link
+                  //href="http://localhost:3000/reset"
+                  variant="body2"
+                  onClick={resentOTP}
+                >
                   {"Cant get OTP? Resend "}
                 </Link>
               </Grid>

@@ -9,6 +9,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // auth middleware
 import { AuthorizeUser, ProtectPass } from "./middleware/auth";
+import Dodo from "./components/Dodo";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Username />} />
+          <Route path="/dodo" element={<Dodo />} />
           <Route path="/register" element={<Register />} />
           <Route
             path="/password"

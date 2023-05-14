@@ -3,10 +3,11 @@ import cors from "cors";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import bodyParser from "body-parser";
+import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config();
 
 import router from "./router/route.js";
-//import connect from "./database/db.js";
-let MONGO_URL = "mongodb://localhost:27017/AUTH";
+let MONGO_URL = process.env.MONGO_URL;
 mongoose.set("strictQuery", true);
 
 let app = express();
